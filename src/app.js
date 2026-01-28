@@ -2,7 +2,7 @@ import express from "express";
 import cors from "cors";
 import morgan from "morgan";
 
-import env from "./config/env.js";
+import env from "../src/config/env.js";
 import { errorHandler, notFound } from "./middlewares/error.middleware.js";
 
 // Routes
