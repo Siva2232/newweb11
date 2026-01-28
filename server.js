@@ -1,4 +1,4 @@
-import app from "./app.js";
+import app from "./src/app.js"; // if app.js is in src
 import env from "./config/env.js";
 import connectDB from "./config/db.js";
 
