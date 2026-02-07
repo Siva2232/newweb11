@@ -1,9 +1,19 @@
 import Product from "../models/Product.js";
 
-// Get all products
+// Get all products (Optimized)
 export const getProducts = async (req, res) => {
   try {
-    const products = await Product.find().sort({ createdAt: -1 });
+    // Determine if we need full details or list view
+    const { full } = req.query; 
+
+    let query = Product.find().sort({ createdAt: -1 });
+
+    if (!full) {
+      // For list views, don't fetch heavy fields
+      query = query.select("-description -images");
+    }
+
+    const products = await query.lean(); // Return plain JS objects (faster)
     res.json(products);
   } catch (error) {
     res.status(500).json({ message: error.message });

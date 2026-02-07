@@ -16,5 +16,11 @@ const productSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+// Indexes for faster filtering and sorting
+productSchema.index({ category: 1 });
+productSchema.index({ isTrending: 1 });
+productSchema.index({ isBestSeller: 1 });
+productSchema.index({ name: "text" }); // Text search optimized
+
 const Product = mongoose.model("Product", productSchema);
 export default Product;

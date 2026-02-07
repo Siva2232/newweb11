@@ -14,11 +14,12 @@ export const getCustomProducts = async (req, res) => {
 // Create new custom product (admin)
 export const createCustomProduct = async (req, res) => {
   try {
-    const { name, price, shortDesc, fullDesc, tag, image } = req.body;
+    const { name, price, originalPrice, shortDesc, fullDesc, tag, image } = req.body;
 
     const product = new CustomProduct({
       name,
       price,
+      originalPrice,
       shortDesc: shortDesc || "",
       fullDesc: fullDesc || "",
       tag: tag || "Signature",
@@ -40,6 +41,7 @@ export const updateCustomProduct = async (req, res) => {
 
     product.name = req.body.name || product.name;
     product.price = req.body.price || product.price;
+    product.originalPrice = req.body.originalPrice !== undefined ? req.body.originalPrice : product.originalPrice;
     product.shortDesc = req.body.shortDesc !== undefined ? req.body.shortDesc : product.shortDesc;
     product.fullDesc = req.body.fullDesc !== undefined ? req.body.fullDesc : product.fullDesc;
     product.tag = req.body.tag || product.tag;

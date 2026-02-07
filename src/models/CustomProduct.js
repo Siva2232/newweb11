@@ -9,9 +9,12 @@ const customProductSchema = new mongoose.Schema(
       trim: true,
     },
     price: {
-      type: String,
+      type: Number,
       required: [true, "Price is required"],
-      trim: true, // e.g. "₹4,999"
+    },
+    originalPrice: {
+      type: Number,
+      default: 0,
     },
     shortDesc: {
       type: String,
