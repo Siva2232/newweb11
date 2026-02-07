@@ -18,9 +18,11 @@ import customBookOrderRoutes from "./routes/customBookOrder.routes.js";
 
 const app = express();
 
+app.set('trust proxy', 1); // Trust Nginx/Proxy properties
+
 /* -------------------- 🔥 CORS (MUST BE FIRST) -------------------- */
 app.use(cors({
-  origin: "*",
+  origin: process.env.FRONTEND_URL || "*", // Use stricter origin in production
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true
@@ -36,8 +38,10 @@ app.use(express.urlencoded({ extended: true }));
 app.use(morgan("dev"));
 
 /* -------------------- STATIC UPLOADS -------------------- */
-const projectRoot = process.cwd();
-app.use("/uploads", express.static(path.join(projectRoot, "uploads")));
+// Serve uploads from the root uploads directory
+const uploadsPath = path.resolve(__dirname, "../uploads");
+app.use("/uploads", express.static(uploadsPath));
+console.log(`📂 Serving static files from: ${uploadsPath}`);
 
 /* -------------------- 🔥 IMAGE UPLOAD ROUTE (FORCED CORS) -------------------- */
 app.post(
