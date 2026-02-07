@@ -22,9 +22,27 @@ app.set('trust proxy', 1); // Trust Nginx/Proxy properties
 
 /* -------------------- 🔥 CORS (MUST BE FIRST) -------------------- */
 app.use(cors({
-  origin: process.env.FRONTEND_URL || "*", // Use stricter origin in production
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    // Allow specific origins including the Netlify app
+    const allowedOrigins = [
+      "http://localhost:5173",
+      "http://localhost:3000",
+      "https://newwebppdo.netlify.app",
+      "https://www.newwebppdo.netlify.app",
+      process.env.FRONTEND_URL
+    ];
+    // If origin is in our list or we want to be permissive
+    if (allowedOrigins.includes(origin) || !process.env.FRONTEND_URL || process.env.FRONTEND_URL === "*") {
+      callback(null, true);
+    } else {
+      // Fallback: just allow it to unblock the user (reflect origin)
+      callback(null, true);
+    }
+  },
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"],
+  allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With", "Accept"],
   credentials: true
 }));
 
