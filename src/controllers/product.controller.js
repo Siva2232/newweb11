@@ -33,9 +33,14 @@ export const getProductById = async (req, res) => {
 
 // Create product
 export const createProduct = async (req, res) => {
-  const { name, category, price, originalPrice, description, image, images } = req.body;
-
   try {
+    const { 
+      name, category, price, originalPrice, 
+      description, detailedDescription, specifications,
+      image, mainImage, 
+      images, carouselImages 
+    } = req.body;
+
     if (!name || !category || !price) {
       return res.status(400).json({ message: "Name, category, and price are required" });
     }
@@ -46,9 +51,12 @@ export const createProduct = async (req, res) => {
       price,
       originalPrice,
       description,
-      image,
-      images,
+      detailedDescription,
+      specifications,
+      image: image || mainImage,
+      images: images || carouselImages,
     });
+    
     await product.save();
     res.status(201).json(product);
   } catch (error) {
@@ -62,13 +70,25 @@ export const updateProduct = async (req, res) => {
     const product = await Product.findById(req.params.id);
     if (!product) return res.status(404).json({ message: "Product not found" });
 
-    product.name = req.body.name || product.name;
-    product.category = req.body.category || product.category;
-    product.price = req.body.price || product.price;
-    product.originalPrice = req.body.originalPrice || product.originalPrice;
-    product.description = req.body.description || product.description;
-    product.image = req.body.image || product.image;
-    product.images = req.body.images || product.images;
+    // Helper to check if value is provided
+    const { 
+      name, category, price, originalPrice, 
+      description, detailedDescription, specifications,
+      image, mainImage, 
+      images, carouselImages 
+    } = req.body;
+
+    if (name) product.name = name;
+    if (category) product.category = category;
+    if (price) product.price = price;
+    if (originalPrice !== undefined) product.originalPrice = originalPrice;
+    
+    if (description) product.description = description;
+    if (detailedDescription) product.detailedDescription = detailedDescription;
+    if (specifications) product.specifications = specifications;
+    
+    if (image || mainImage) product.image = image || mainImage;
+    if (images || carouselImages) product.images = images || carouselImages;
 
     await product.save();
     res.json(product);
