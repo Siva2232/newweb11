@@ -11,6 +11,7 @@ import HeroBanner from "./src/models/HeroBanner.js";
 import SpecialOffer from "./src/models/special.js";
 import CustomProduct from "./src/models/CustomProduct.js";
 import Admin from "./src/models/Admin.js";
+import SubCategory from "./src/models/SubCategory.js";
 
 dotenv.config();
 
@@ -138,6 +139,20 @@ const seedDB = async () => {
             });
             console.log(`✅ Created Category: ${cat.name}`);
 
+            // create subcategories for this category
+            for (const subType of cat.subTypes) {
+                try {
+                    await SubCategory.create({
+                        name: subType,
+                        category: newCat._id,
+                        image: getRandomImage(),
+                        description: `${subType} ${cat.name} variants`
+                    });
+                } catch (err) {
+                    console.warn("Could not seed subcategory", err);
+                }
+            }
+
             // Create 5 Products for EACH sub-type
             for (const subType of cat.subTypes) {
                 const productsToInsert = [];
@@ -148,6 +163,7 @@ const seedDB = async () => {
                         price: Math.floor(Math.random() * 5000) + 500, // Random price 500-5500
                         originalPrice: Math.floor(Math.random() * 2000) + 6000, 
                         category: newCat.name, 
+                        subcategory: subType,
                         image: getRandomImage(),
                         images: [getRandomImage(), getRandomImage()], // Additional images
                         stock: 50,

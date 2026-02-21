@@ -4,6 +4,7 @@ const productSchema = new mongoose.Schema(
   {
     name: { type: String, required: true },
     category: { type: String, required: true },
+    subcategory: { type: String },
     price: { type: Number, required: true },
     originalPrice: { type: Number },
     description: { type: String },
@@ -20,6 +21,7 @@ const productSchema = new mongoose.Schema(
 
 // Indexes for faster filtering and sorting
 productSchema.index({ category: 1 });
+productSchema.index({ subcategory: 1 });
 productSchema.index({ isTrending: 1 });
 productSchema.index({ isBestSeller: 1 });
 productSchema.index({ name: "text" }); // Text search optimized

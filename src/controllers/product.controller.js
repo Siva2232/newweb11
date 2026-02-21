@@ -4,9 +4,13 @@ import Product from "../models/Product.js";
 export const getProducts = async (req, res) => {
   try {
     // Determine if we need full details or list view
-    const { full } = req.query; 
+    const { full, category, subcategory } = req.query; 
 
-    let query = Product.find().sort({ createdAt: -1 });
+    let filter = {};
+    if (category) filter.category = category;
+    if (subcategory) filter.subcategory = subcategory;
+
+    let query = Product.find(filter).sort({ createdAt: -1 });
 
     if (!full) {
       // For list views, don't fetch heavy fields
@@ -35,7 +39,7 @@ export const getProductById = async (req, res) => {
 export const createProduct = async (req, res) => {
   try {
     const { 
-      name, category, price, originalPrice, 
+      name, category, subcategory, price, originalPrice, 
       description, detailedDescription, specifications,
       image, mainImage, 
       images, carouselImages 
@@ -48,6 +52,7 @@ export const createProduct = async (req, res) => {
     const product = new Product({
       name,
       category,
+      subcategory,
       price,
       originalPrice,
       description,
@@ -72,7 +77,7 @@ export const updateProduct = async (req, res) => {
 
     // Helper to check if value is provided
     const { 
-      name, category, price, originalPrice, 
+      name, category, subcategory, price, originalPrice, 
       description, detailedDescription, specifications,
       image, mainImage, 
       images, carouselImages 
@@ -80,6 +85,7 @@ export const updateProduct = async (req, res) => {
 
     if (name) product.name = name;
     if (category) product.category = category;
+    if (subcategory !== undefined) product.subcategory = subcategory;
     if (price) product.price = price;
     if (originalPrice !== undefined) product.originalPrice = originalPrice;
     

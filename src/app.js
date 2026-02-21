@@ -15,6 +15,7 @@ import heroBannerRoutes from "./routes/heroBanner.routes.js";
 import specialRoutes from "./routes/special.routes.js";
 import customProductRoutes from "./routes/customProduct.routes.js";
 import customBookOrderRoutes from "./routes/customBookOrder.routes.js";
+import subCategoryRoutes from "./routes/subcategory.routes.js";
 
 const app = express();
 
@@ -94,6 +95,7 @@ app.use("/api/hero-banners", heroBannerRoutes);
 app.use("/api/special-offers", specialRoutes);
 app.use("/api/custom-products", customProductRoutes);
 app.use("/api/custom-book-orders", customBookOrderRoutes);
+app.use("/api/subcategories", subCategoryRoutes);
 
 /* -------------------- HEALTH CHECK -------------------- */
 app.get("/", (req, res) => {

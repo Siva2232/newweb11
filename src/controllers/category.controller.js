@@ -38,11 +38,14 @@ export const updateCategory = async (req, res) => {
   }
 };
 
-// Delete category
+// Delete category (and clean up subcategories)
 export const deleteCategory = async (req, res) => {
   try {
     const category = await Category.findByIdAndDelete(req.params.id);
     if (!category) return res.status(404).json({ message: "Category not found" });
+
+    // remove subcategories belonging to this category
+    await import("../models/SubCategory.js").then(m => m.default.deleteMany({ category: category._id }));
 
     res.json({ message: "Category removed" });
   } catch (error) {
