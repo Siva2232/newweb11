@@ -22,8 +22,24 @@ const upload = multer({ storage });
 // GET all orders
 router.get('/', auth, async (req, res) => {
   try {
-    const orders = await CustomBookOrder.find().sort({ createdAt: -1 });
-    res.json(orders);
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 20;
+    const skip = (page - 1) * limit;
+
+    const [orders, total] = await Promise.all([
+      CustomBookOrder.find().sort({ createdAt: -1 }).skip(skip).limit(limit),
+      CustomBookOrder.countDocuments()
+    ]);
+
+    res.json({
+      orders,
+      pagination: {
+        total,
+        page,
+        limit,
+        pages: Math.ceil(total / limit)
+      }
+    });
   } catch (err) {
     res.status(500).json({ message: 'Failed to fetch custom book orders' });
   }

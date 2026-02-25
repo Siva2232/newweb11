@@ -4,11 +4,49 @@ const router = express.Router();
 const Product = require('../models/Product');
 const auth = require('../middleware/auth');
 
+// GET /api/products/search
+router.get('/search', async (req, res) => {
+  try {
+    const term = req.query.q;
+    if (!term) return res.json([]);
+    
+    // Simple regex search (case-insensitive)
+    const products = await Product.find({
+      name: { $regex: term, $options: 'i' }
+    }).limit(10);
+    
+    res.json(products);
+  } catch (err) {
+    res.status(500).json({ message: 'Search failed' });
+  }
+});
+
 // GET /api/products  (public)
 router.get('/', async (req, res) => {
   try {
-    const products = await Product.find().sort({ createdAt: -1 });
-    res.json(products);
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 20;
+    const skip = (page - 1) * limit;
+
+    const query = {};
+    if (req.query.category) query.category = req.query.category;
+    if (req.query.isTrending === 'true') query.isTrending = true;
+    if (req.query.isBestSeller === 'true') query.isBestSeller = true;
+
+    const [products, total] = await Promise.all([
+      Product.find(query).sort({ createdAt: -1 }).skip(skip).limit(limit),
+      Product.countDocuments(query)
+    ]);
+
+    res.json({
+      products,
+      pagination: {
+        total,
+        page,
+        limit,
+        pages: Math.ceil(total / limit)
+      }
+    });
   } catch (err) {
     res.status(500).json({ message: 'Failed to fetch products' });
   }

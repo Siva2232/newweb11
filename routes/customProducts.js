@@ -7,8 +7,24 @@ const auth = require('../middleware/auth');
 // GET
 router.get('/', async (req, res) => {
   try {
-    const items = await CustomProduct.find().sort({ createdAt: -1 });
-    res.json(items);
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 20;
+    const skip = (page - 1) * limit;
+
+    const [products, total] = await Promise.all([
+      CustomProduct.find().sort({ createdAt: -1 }).skip(skip).limit(limit),
+      CustomProduct.countDocuments()
+    ]);
+
+    res.json({
+      products,
+      pagination: {
+        total,
+        page,
+        limit,
+        pages: Math.ceil(total / limit)
+      }
+    });
   } catch (err) {
     res.status(500).json({ message: 'Failed to fetch custom products' });
   }

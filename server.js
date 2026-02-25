@@ -17,12 +17,20 @@ const specialOfferRoutes = require('./routes/specialOffers');
 const customProductRoutes = require('./routes/customProducts');
 const customOrderRoutes = require('./routes/customOrders');
 const uploadRoutes = require('./routes/upload');
+const errorHandler = require('./middleware/errorMiddleware');
 
 const app = express();
 const PORT = process.env.PORT || 5001;
 
 // connect to Mongo
 connectDB();
+
+console.log('Environment Debug:', {
+  PORT: PORT,
+  ADMIN_EMAIL: process.env.ADMIN_EMAIL ? 'SET' : 'NOT SET',
+  MONGO_URI: process.env.MONGO_URI ? 'SET' : 'NOT SET',
+  JWT_SECRET: process.env.JWT_SECRET ? 'SET' : 'NOT SET',
+});
 
 // middleware
 app.use(cors());
@@ -47,6 +55,16 @@ app.use('/api/upload', uploadRoutes);
 app.get('/', (req, res) => {
   res.send('newwww backend is running');
 });
+
+// 404 handler
+app.use((req, res, next) => {
+  const error = new Error(`Not Found - ${req.originalUrl}`);
+  res.status(404);
+  next(error);
+});
+
+// Error middleware
+app.use(errorHandler);
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`))
   .on('error', (err) => {

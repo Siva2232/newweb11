@@ -26,4 +26,8 @@ const CustomBookOrderSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+CustomBookOrderSchema.index({ 'customer.phone': 1 });
+CustomBookOrderSchema.index({ status: 1 });
+CustomBookOrderSchema.index({ createdAt: -1 });
+
 module.exports = mongoose.model('CustomBookOrder', CustomBookOrderSchema);

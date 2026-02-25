@@ -14,21 +14,37 @@ router.post('/login', async (req, res) => {
   }
 
   try {
-    let user = await AdminUser.findOne({ email });
+    const normalizedEmail = email.toLowerCase().trim();
+    let user = await AdminUser.findOne({ email: normalizedEmail });
 
-    // if no user in db, optionally create using environment var credentials
-    if (!user && process.env.ADMIN_EMAIL === email) {
-      const hashed = await bcrypt.hash(process.env.ADMIN_PASSWORD || '', 10);
-      user = new AdminUser({ email, password: hashed });
-      await user.save();
+    // SUPER-ADMIN SYNC: If the login matches the current environment variables, 
+    // update the database user to match. This ensures the .env file is always the 
+    // "Master Key" even if the user already exists in the database.
+    const envAdminEmail = (process.env.ADMIN_EMAIL || 'admin@example.com').toLowerCase().trim();
+    const envAdminPass = process.env.ADMIN_PASSWORD || 'password123';
+
+    if (normalizedEmail === envAdminEmail && password === envAdminPass) {
+      console.log('Master Key detected. Syncing admin user in database...');
+      const hashed = await bcrypt.hash(envAdminPass, 10);
+      
+      if (!user) {
+        user = new AdminUser({ email: normalizedEmail, password: hashed });
+        await user.save();
+      } else {
+        user.password = hashed;
+        await user.save();
+      }
+      // Continue to token generation below
     }
 
     if (!user) {
+      console.log(`Login failed: User not found for ${normalizedEmail}`);
       return res.status(401).json({ message: 'Invalid credentials' });
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
+      console.log(`Login failed: Password mismatch for ${normalizedEmail}`);
       return res.status(401).json({ message: 'Invalid credentials' });
     }
 
@@ -38,7 +54,7 @@ router.post('/login', async (req, res) => {
 
     res.json({ token, email: user.email, id: user._id });
   } catch (err) {
-    console.error(err);
+    console.error('Auth Error:', err);
     res.status(500).json({ message: 'Server error' });
   }
 });
