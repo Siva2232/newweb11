@@ -1,18 +1,59 @@
-import app from "./src/app.js"; // if app.js is in src
-import env from "./src/config/env.js";
-import connectDB from "./src/config/db.js";
+// backend/server.js
+require('dotenv').config();
+const express = require('express');
+const path = require('path');
+const cors = require('cors');
+const morgan = require('morgan');
 
-const startServer = async () => {
-  try {
-    await connectDB();
+const connectDB = require('./config/db');
 
-    app.listen(env.PORT, () => {
-      console.log(`🚀 Server running on port ${env.PORT}`);
-    });
-  } catch (error) {
-    console.error("❌ Server failed to start:", error.message);
-    process.exit(1);
-  }
-};
+// routes
+const authRoutes = require('./routes/auth');
+const productRoutes = require('./routes/products');
+const categoryRoutes = require('./routes/categories');
+const subcategoryRoutes = require('./routes/subcategories');
+const bannerRoutes = require('./routes/banners');
+const specialOfferRoutes = require('./routes/specialOffers');
+const customProductRoutes = require('./routes/customProducts');
+const customOrderRoutes = require('./routes/customOrders');
+const uploadRoutes = require('./routes/upload');
 
-startServer();
+const app = express();
+const PORT = process.env.PORT || 5001;
+
+// connect to Mongo
+connectDB();
+
+// middleware
+app.use(cors());
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true }));
+app.use(morgan('dev'));
+
+// static folder for uploads
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+// mount routers
+app.use('/api/auth', authRoutes);
+app.use('/api/products', productRoutes);
+app.use('/api/categories', categoryRoutes);
+app.use('/api/subcategories', subcategoryRoutes);
+app.use('/api/banners', bannerRoutes);
+app.use('/api/special-offers', specialOfferRoutes);
+app.use('/api/custom-products', customProductRoutes);
+app.use('/api/custom-orders', customOrderRoutes);
+app.use('/api/upload', uploadRoutes);
+
+app.get('/', (req, res) => {
+  res.send('newwww backend is running');
+});
+
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`))
+  .on('error', (err) => {
+    if (err.code === 'EADDRINUSE') {
+      console.error(`Port ${PORT} is already in use. Please check if another server is running.`);
+      process.exit(1);
+    } else {
+      throw err;
+    }
+  });
