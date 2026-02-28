@@ -17,7 +17,8 @@ const storage = multer.diskStorage({
   },
 });
 
-const upload = multer({ storage });
+// apply per-file limit 5MB
+const upload = multer({ storage, limits: { fileSize: 5 * 1024 * 1024 } });
 
 // GET all orders
 router.get('/', auth, async (req, res) => {
@@ -106,6 +107,14 @@ router.post('/', upload.fields([
       error: err.message
     });
   }
+});
+
+// multer error handler (after all routes)
+router.use((err, req, res, next) => {
+  if (err.code === 'LIMIT_FILE_SIZE') {
+    return res.status(413).json({ message: 'One of the uploaded files exceeds the 5MB limit' });
+  }
+  next(err);
 });
 
 module.exports = router;

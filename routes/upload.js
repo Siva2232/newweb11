@@ -15,7 +15,8 @@ const storage = multer.diskStorage({
   },
 });
 
-const upload = multer({ storage });
+// set per-file size limit 5MB
+const upload = multer({ storage, limits: { fileSize: 5 * 1024 * 1024 } });
 
 // POST /api/upload  (single image)
 router.post('/', upload.single('file'), (req, res) => {
@@ -23,6 +24,14 @@ router.post('/', upload.single('file'), (req, res) => {
   // return path that frontend can append to BASE_URL
   const urlPath = '/uploads/' + req.file.filename;
   res.json({ path: urlPath });
+});
+
+// handle multer file-size errors
+router.use((err, req, res, next) => {
+  if (err.code === 'LIMIT_FILE_SIZE') {
+    return res.status(413).json({ message: 'File size exceeds 5MB limit' });
+  }
+  next(err);
 });
 
 module.exports = router;
