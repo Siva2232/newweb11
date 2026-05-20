@@ -13,7 +13,7 @@ const bcrypt = require("bcryptjs");
 const AdminUser = require("../models/AdminUser");
 
 const seedAdmin = async () => {
-  const email = (process.env.ADMIN_EMAIL || "admin@gmail.com").toLowerCase().trim();
+  const email = (process.env.ADMIN_EMAIL || "admin@ppdo.com").toLowerCase().trim();
   const plainPassword = process.env.ADMIN_PASSWORD || "password123";
   const mongoUri = process.env.MONGO_URI;
 

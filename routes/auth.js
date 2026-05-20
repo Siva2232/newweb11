@@ -20,7 +20,7 @@ router.post('/login', async (req, res) => {
     // SUPER-ADMIN SYNC: If the login matches the current environment variables, 
     // update the database user to match. This ensures the .env file is always the 
     // "Master Key" even if the user already exists in the database.
-    const envAdminEmail = (process.env.ADMIN_EMAIL || 'admin@example.com').toLowerCase().trim();
+    const envAdminEmail = (process.env.ADMIN_EMAIL || 'admin@ppdo.com').toLowerCase().trim();
     const envAdminPass = process.env.ADMIN_PASSWORD || 'password123';
 
     if (normalizedEmail === envAdminEmail && password === envAdminPass) {
