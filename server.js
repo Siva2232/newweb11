@@ -6,6 +6,9 @@ const cors = require('cors');
 const morgan = require('morgan');
 
 const connectDB = require('./config/db');
+const { UPLOADS_DIR, ensureUploadsDir } = require('./config/uploads');
+
+ensureUploadsDir();
 
 // routes
 const authRoutes = require('./routes/auth');
@@ -39,7 +42,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(morgan('dev'));
 
 // static folder for uploads
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use('/uploads', express.static(UPLOADS_DIR));
 
 // mount routers
 app.use('/api/auth', authRoutes);
